@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: data-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: frontend-image:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+            # Purpose: This is the port your frontend application (e.g., React, Vue, etc.) listens on inside the container.
+            # Scope: Internal to the container only.
+---
+apiVersion: v1
+# To expose this Pod, you define a Service
+kind: Service
+metadata:
+  name: frontend
+  namespace: data-app
+spec:
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 3000 # The Service listens on port 3000
+      targetPort: 3000 # # It forwards requests to the Pod's port 3000
+      nodePort: 30100  # Exposes frontend externally on a port to external traffic
+  type: NodePort  # Exposes frontend externally on a port
